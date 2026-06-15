@@ -119,6 +119,86 @@ ocr_server/         # OCR服务端 OCR Server (Python FastAPI)
 
 ---
 
+## 技术难点：国内医疗健康开放API的困境 / Technical Challenge: The Scarcity of Open Healthcare APIs in China
+
+这是开发过程中最大的痛点。我最初的设计构想要比现在实现的版本 ambitious 得多，但因为找不到合适的国内开放API，不得不多次退而求其次。
+
+This was the biggest pain point during development. My original design vision was far more ambitious than what ended up being built, but the lack of suitable open APIs in China forced me to make compromises repeatedly.
+
+> **一个App的功能上限，往往不是由开发能力决定的，而是由可用的数据和服务决定的。**
+>
+> **The capability ceiling of an app is often determined not by development skills, but by the available data and services.**
+
+### 1. 药品库搜索 / Drug Database Search
+
+中国有国家药品监督管理局（NMPA）的药品数据库，理论上包含了所有批准上市的药品信息。我希望能在App中接入这个数据源，但研究一番后发现几乎每条路都走不通：
+
+China has the NMPA (National Medical Products Administration) drug database, which theoretically contains information on all approved drugs. I hoped to integrate this data source into the app, but after researching, I found that almost every path was a dead end:
+
+| 方案 / Approach | 调研结果 / Findings | 结论 / Conclusion |
+|----------------|--------------------|--------------------|
+| NMPA官网 / NMPA Website | 提供网页查询界面，但没有公开API接口；数据以网页形式呈现，没有结构化的JSON/XML接口 | 无法直接调用 / No public API |
+| 国家基础药物目录 / National Essential Medicines List | 政府公开文件（PDF/Excel），只有约685种药品，数据格式需要大量清洗 | 部分可用但繁琐 / Partially usable but tedious |
+| 药智网 / Yaozh | 提供药品数据库查询，有部分API，但需要付费（企业版年费数千元），个人开发者无法申请 | 成本过高 / Too expensive |
+| 丁香园用药助手 / DXY Drug Helper | 数据最全面（数万种药品），但不提供API，数据通过自家App封闭使用 | 不可用 / Unavailable |
+| 开源药品数据库 / Open-source drug DB | GitHub上找到一些零散的药品数据集，但数据质量参差不齐，字段不统一 | 非常麻烦 / Very problematic |
+
+**最终方案 / Final approach**：手动录入64种常见家庭用药数据。与专业数据库的上万种相比差距很大，但作为课程设计的演示规模已足够。
+
+Manually entered data for 64 common household drugs. Far fewer than the tens of thousands in professional databases, but sufficient for a course design demonstration.
+
+### 2. 医疗诊断AI / Medical Diagnostic AI
+
+最初设想是接入一个专门训练过的医疗诊断模型——学习了海量医患对话记录，能像经验丰富的全科医生那样给出诊断建议。但调研结果令人失望：
+
+My original vision was to integrate a specialized medical diagnostic AI — one trained on massive doctor-patient dialogue data, capable of providing diagnostic suggestions like an experienced physician. But the research results were disappointing:
+
+| 方案 / Approach | 调研结果 / Findings | 结论 / Conclusion |
+|----------------|--------------------|--------------------|
+| 微医/平安好医生 / WeDoctor / Ping An Good Doctor | 内部有训练过的医疗AI模型，但完全不对外开放API | 不可用 / Closed API |
+| 百度灵医智惠 / Baidu Lingyi Zhihui | 提供辅助诊断能力，但需要医疗机构资质认证，个人开发者无法使用 | 资质门槛 / Qualification barrier |
+| 阿里健康 / Ali Health | 有智能用药提醒和药品查询能力，但API不对个人开放 | 不可用 / Unavailable |
+| 开源医疗大模型 / Open-source medical LLM | 华佗GPT、BianQue等，但需要GPU服务器部署，推理成本高 | 部署成本高 / High deployment cost |
+
+**最终方案 / Final approach**：接入智谱GLM-4-Flash和通义千问Qwen3-8B通用大模型。免费、接入方便、响应速度快，但没有专业诊断能力。
+
+Integrated Zhipu GLM-4-Flash and Tongyi Qwen3-8B general-purpose LLMs. Free, easy to integrate, fast response, but lacking professional diagnostic capabilities.
+
+### 3. 药品图像识别 / Drug Image Recognition
+
+最初的想法是能识别中药材、药丸颗粒等有明显特征的药物——对于散装中药饮片或丢失包装的药丸，拍个照就能识别出来，实用性非常强。但现实是残酷的：
+
+My original idea was to recognize traditional Chinese medicine, herbal pills, and other visually distinctive drugs — for loose herbal slices or pills without packaging, a photo could identify them instantly. But reality was harsh:
+
+| 方案 / Approach | 调研结果 / Findings | 结论 / Conclusion |
+|----------------|--------------------|--------------------|
+| 百度AI开放平台 / Baidu AI Platform | 有"通用物体识别"，但没有专门的药品/中药材识别模型；属于智慧医疗模块，需要企业资质申请 | 个人开发者无法使用 / Unavailable to individuals |
+| 阿里云视觉智能 / Alibaba Cloud Vision | 有"植物识别"可识别部分中药材原植物，但对炮制后的中药饮片、药丸颗粒无法识别 | 不适用 / Not applicable |
+| 华为HMS ML Kit / Huawei HMS ML Kit | 提供通用图像分类，没有药品垂直领域的训练数据 | 不适用 / Not applicable |
+| GitHub开源项目 / GitHub open-source | 找到几个中药材识别的毕业设计项目，但训练数据集不公开，模型精度不够，无法直接集成 | 不可用 / Unusable |
+
+**最终方案 / Final approach**：放弃中药材识别，退而求其次做基于OCR文字的药品识别——拍摄药盒上的文字，再匹配药品库。局限性很明显：如果药品包装丢了或者字迹模糊，就无法识别了。
+
+Gave up traditional Chinese medicine recognition. Fell back to OCR-based drug identification — photograph text on drug packaging, then match against the drug database. The limitation is obvious: if the packaging is lost or text is blurry, recognition fails.
+
+### 总结 / Summary
+
+这些限制倒逼我去思考更有创意的解决方案，也让我深刻体会到国内医疗健康领域"有技术但缺资源"的困境——大量的医疗数据和AI能力被封闭在大公司和医疗机构内部，个人开发者很难获取。
+
+These constraints pushed me to think of more creative solutions, and made me deeply realize the predicament of "having skills but lacking resources" in China's healthcare tech sector — vast amounts of medical data and AI capabilities are locked within large companies and medical institutions, making them inaccessible to individual developers.
+
+不过换个角度看，没有现成的API反而让我学到了更多：自己设计了OCR+双策略提取的药品名识别算法，手动录入的数据质量更可控，通用大模型虽然不够专业但覆盖范围广。
+
+On the flip side, the absence of ready-made APIs actually taught me more: I designed my own OCR + dual-strategy drug name extraction algorithm, manually entered data with more controllable quality, and while general-purpose LLMs aren't specialized enough, they cover a wide range.
+
+**未来展望 / Future Outlook**：
+1. 接入更多药品数据源，扩大药品库覆盖范围 / Integrate more drug data sources to expand coverage
+2. 研究开源医疗大模型的轻量化部署方案 / Research lightweight deployment of open-source medical LLMs
+3. 探索中药材图像识别的可行性 / Explore feasibility of traditional Chinese medicine image recognition
+4. 接入真实短信验证码服务，完善登录体验 / Integrate real SMS verification for better login experience
+
+---
+
 ## 许可证 / License
 
 本项目采用 [MIT 许可证](LICENSE) 开源。
