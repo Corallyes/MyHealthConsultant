@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主色系 - 墨绿，传达专业、可信赖的医疗感 -->
+    <color name="primary">#2D5A47</color>
+    <color name="primary_dark">#1A3D2E</color>
+    <color name="primary_light">#E8F0EC</color>
+
+    <!-- 中性色系 - 温暖柔和 -->
+    <color name="background">#FAFAF8</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#F5F5F3</color>
+
+    <!-- 文本色系 - 清晰的四级层级 -->
+    <color name="text_primary">#1A1A1A</color>
+    <color name="text_secondary">#6B6B6B</color>
+    <color name="text_hint">#9E9E9E</color>
+    <color name="text_disabled">#C4C4C4</color>
+
+    <!-- 功能色 - 低饱和度 -->
+    <color name="success">#2E7D32</color>
+    <color name="warning">#E65100</color>
+    <color name="error">#C62828</color>
+    <color name="info">#1565C0</color>
+
+    <!-- 辅助色 -->
+    <color name="divider">#E8E6E3</color>
+    <color name="border">#D4D2CF</color>
+    <color name="shadow">#14000000</color>
+
+    <!-- 兼容旧版颜色名称（避免编译错误） -->
+    <color name="purple_200">#E8F0EC</color>
+    <color name="purple_500">#2D5A47</color>
+    <color name="purple_700">#1A3D2E</color>
+    <color name="teal_200">#E8F0EC</color>
+    <color name="teal_700">#2D5A47</color>
+    <color name="black">#FF1A1A1A</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

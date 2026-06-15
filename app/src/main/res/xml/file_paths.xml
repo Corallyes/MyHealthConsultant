@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 相机拍摄的照片存储路径 -->
+    <external-files-path
+        name="my_images"
+        path="Pictures" />
+
+    <!-- 缓存目录 -->
+    <cache-path
+        name="cache"
+        path="." />
+
+    <!-- 外部缓存目录 -->
+    <external-cache-path
+        name="external_cache"
+        path="." />
+</paths>
